@@ -1,53 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import EquipmentCardDetailed from './EquipmentCardDetailed';
-import { useState } from "react";
 
 
 // --- UTILITY COMPONENTS (Icons) ---
 // Using inline SVGs for clarity in search/dropdown buttons
-
-const catalogItems = [
-    {
-        name: 'Digital Camera Canon EOS',
-        description: 'Professional DSLR camera with 24MP sensor and 4K video recording',
-        status: 'Excellent',
-        available: 3,
-        total: 5,
-        category: 'Camera',
-        imgUrl: 'https://placehold.co/600x400/1e293b/ffffff?text=Camera+Gear',
-        tagColor: 'bg-slate-700',
-    },
-    {
-        name: 'Compound Microscope',
-        description: 'High-power optical microscope with 1000x magnification',
-        status: 'Good',
-        available: 7,
-        total: 10,
-        category: 'Lab',
-        imgUrl: 'https://placehold.co/600x400/065f46/ffffff?text=Lab+Equipment',
-        tagColor: 'bg-blue-800',
-    },
-    {
-        name: 'Football Set',
-        description: 'Professional size 5 football with pump and carrying bag',
-        status: 'Good',
-        available: 8,
-        total: 8,
-        category: 'Sports',
-        imgUrl: 'https://placehold.co/600x400/9a3412/ffffff?text=Sports+Balls',
-        tagColor: 'bg-orange-800',
-    },
-    {
-        name: 'Acoustic Guitar',
-        description: 'Yamaha acoustic guitar with case and tuner',
-        status: 'Excellent',
-        available: 2,
-        total: 4,
-        category: 'Music',
-        imgUrl: 'https://placehold.co/600x400/581c87/ffffff?text=Musical+Instrument',
-        tagColor: 'bg-purple-800',
-    },
-];
 
 const SearchIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
@@ -66,10 +22,45 @@ const ChevronDownIcon = () => (
 const EquipmentCatalog = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('all');
-    const filteredItems = catalogItems.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (categoryFilter === 'all' || item.category.toLowerCase() === categoryFilter)
-    );
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchItems = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const res = await fetch('http://localhost:5001/api/items');
+                if (!res.ok) throw new Error('Failed to fetch items');
+                const data = await res.json();
+                setItems(data || []);
+            } catch (err) {
+                setError(err.message || 'Error fetching items');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchItems();
+    }, []);
+
+    const formatItemData = (item) => ({
+        name: item.name,
+        description: item.description || '',
+        status: item.status || '',
+        available: typeof item.available === 'number' ? item.available : (item.isAvailable ? 1 : 0),
+        total: item.total ?? 1,
+        category: item.category || 'Other',
+        imgUrl: item.imageUrl || 'https://placehold.co/600x400/1e293b/ffffff?text=Equipment',
+        tagColor: 'bg-slate-700',
+    });
+
+    const filteredItems = items
+        .map(formatItemData)
+        .filter(item =>
+            item.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            (categoryFilter === 'all' || item.category.toLowerCase() === categoryFilter)
+        );
 
     return (<main className="flex-grow p-4 space-y-8 bg-gray-50 md:p-8">
         <div className="flex items-start justify-between">
@@ -124,19 +115,21 @@ const EquipmentCatalog = () => {
 
         {/* Item Count */}
         <p className="text-sm text-gray-500 font-medium pt-2">
-            {filteredItems.length * 2} items found
+            {loading ? 'Loading items...' : `${filteredItems.length} items found`}
         </p>
 
-        {/* Equipment List - Displaying two items per row on desktop */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {/* Render catalog items twice to match the visual density of the screenshot */}
-            {filteredItems.map((item, index) => (
-                <EquipmentCardDetailed key={`item-${index}`} {...item} />
-            ))}
-            {filteredItems.slice(0, 2).map((item, index) => (
-                <EquipmentCardDetailed key={`item-extra-${index}`} {...item} name={`Vintage ${item.name}`} />
-            ))}
-        </div>
+        {/* Equipment List - Displaying responsive grid */}
+        {loading ? (
+            <div className="p-6 text-center text-gray-500">Loading equipment...</div>
+        ) : error ? (
+            <div className="text-red-600 bg-red-50 p-4 rounded-lg">Error: {error}</div>
+        ) : (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                {filteredItems.map((item, index) => (
+                    <EquipmentCardDetailed key={`item-${index}`} {...item} />
+                ))}
+            </div>
+        )}
     </main>);
 };
 

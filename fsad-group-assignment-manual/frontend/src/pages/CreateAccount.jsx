@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function CreateAccount() {
+    const navigate = useNavigate();
     const [form, setForm] = useState({
         fullName: "",
         email: "",
@@ -10,16 +11,56 @@ export default function CreateAccount() {
         password: "",
         confirmPassword: ""
     });
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const roles = ["Student", "Staff", "Admin"];
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+        setError(""); // Clear error when user makes changes
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Creating account:", form);
+        setError("");
+        setIsLoading(true);
+
+        // Validate passwords match
+        if (form.password !== form.confirmPassword) {
+            setError("Passwords do not match");
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:5001/api/auth/signin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: form.fullName,
+                    email: form.email,
+                    studentId: form.schoolId,
+                    role: form.role.toUpperCase(),
+                    password: form.password
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to create account');
+            }
+
+            // On success, redirect to login page
+            navigate('/');
+        } catch (err) {
+            setError(err.message || 'An error occurred while creating your account');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -118,11 +159,20 @@ export default function CreateAccount() {
                         />
                     </div>
 
+                    {error && (
+                        <div className="text-red-600 text-sm mt-2">
+                            {error}
+                        </div>
+                    )}
+
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-medium transition"
+                        disabled={isLoading}
+                        className={`w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-medium transition ${
+                            isLoading ? 'opacity-70 cursor-not-allowed' : ''
+                        }`}
                     >
-                        Create Account
+                        {isLoading ? 'Creating Account...' : 'Create Account'}
                     </button>
                 </form>
 
