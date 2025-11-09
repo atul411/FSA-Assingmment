@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 // --- ICON PLACEHOLDERS ---
 // Replaced the lucide-react import. Please substitute these placeholder components
@@ -26,88 +26,10 @@ const Calendar = (props) => <IconPlaceholder name="Calendar" {...props} />;
 const MapPin = (props) => <IconPlaceholder name="Location" {...props} />;
 const ListFilter = (props) => <IconPlaceholder name="Filter" {...props} />;
 
-// --- MOCK DATA ---
-const mockRequests = [
-  {
-    id: 'r1',
-    equipmentName: 'Digital Camera Canon EOS',
-    status: 'Approved',
-    requesterId: 'STU-2024-001',
-    reason: 'Photography project for Art class',
-    period: 'Oct 25 - Nov 1, 2025',
-    requestedDate: 'Oct 20, 2025',
-    location: 'Equipment Room A',
-    imageUrl: 'https://placehold.co/100x100/3b82f6/ffffff?text=Camera',
-  },
-  {
-    id: 'r2',
-    equipmentName: 'Projector Epson X120',
-    status: 'Pending',
-    requesterId: 'STU-2024-002',
-    reason: 'Presentation for History class',
-    period: 'Nov 10 - Nov 12, 2025',
-    requestedDate: 'Nov 8, 2025',
-    location: 'Equipment Room B',
-    imageUrl: 'https://placehold.co/100x100/ef4444/ffffff?text=Projector',
-  },
-  {
-    id: 'r3',
-    equipmentName: 'Laptop Macbook Pro M1',
-    status: 'Issued',
-    requesterId: 'STU-2024-003',
-    reason: 'Software Development workshop',
-    period: 'Current (Issued)',
-    requestedDate: 'Oct 1, 2025',
-    location: 'IT Storage',
-    imageUrl: 'https://placehold.co/100x100/10b981/ffffff?text=Laptop',
-  },
-  {
-    id: 'r4',
-    equipmentName: 'Microphone Rode NT1',
-    status: 'Pending',
-    requesterId: 'STU-2024-004',
-    reason: 'Podcast recording for Media Club',
-    period: 'Dec 1 - Dec 5, 2025',
-    requestedDate: 'Nov 25, 2025',
-    location: 'Audio Studio C',
-    imageUrl: 'https://placehold.co/100x100/f59e0b/ffffff?text=Mic',
-  },
-];
-
-const mockLoans = [
-  {
-    id: 'l101',
-    equipmentName: 'Digital Camera Canon EOS',
-    status: 'Active',
-    loanDate: 'Oct 25, 2025',
-    returnDate: 'Nov 1, 2025',
-    daysRemaining: 5,
-    borrowerId: 'STU-2024-001',
-    location: 'Equipment Room A',
-    imageUrl: 'https://placehold.co/100x100/3b82f6/ffffff?text=Camera',
-  },
-  {
-    id: 'l102',
-    equipmentName: 'Telescope Celestron 130EQ',
-    status: 'Overdue',
-    loanDate: 'Sep 1, 2025',
-    returnDate: 'Oct 1, 2025',
-    daysRemaining: -35,
-    borrowerId: 'STU-2024-005',
-    location: 'Science Lab',
-    imageUrl: 'https://placehold.co/100x100/f59e0b/ffffff?text=Scope',
-  },
-  {
-    id: 'l103',
-    equipmentName: 'Sound Mixer Yamaha MG10XU',
-    status: 'Returned',
-    loanDate: 'Aug 10, 2025',
-    returnDate: 'Aug 15, 2025',
-    borrowerId: 'STU-2024-006',
-    location: 'Audio Studio C',
-    imageUrl: 'https://placehold.co/100x100/10b981/ffffff?text=Mixer',
-  },
-];
+// We'll fetch requests and loans from the backend API instead of using hard-coded mocks.
+// Endpoints used (adjust if your backend exposes different routes):
+//  - GET http://localhost:5001/api/requests
+//  - GET http://localhost:5001/api/loans
 
 
 // --- UTILITY COMPONENTS ---
@@ -385,13 +307,79 @@ const LoanStatsCard = ({ title, count, icon: Icon, color, iconBg }) => (
 
 const MyLoansContent = ({ searchTerm }) => {
   const [activeTab, setActiveTab] = useState('Active');
+  const [loans, setLoans] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [loadingLoans, setLoadingLoans] = useState(true);
+  const [loadingRequests, setLoadingRequests] = useState(true);
+  const [errorLoans, setErrorLoans] = useState(null);
+  const [errorRequests, setErrorRequests] = useState(null);
 
-  // --- STATS CALCULATION ---
-  const activeCount = mockLoans.filter(l => l.status === 'Active').length;
-  const overdueCount = mockLoans.filter(l => l.status === 'Overdue').length;
-  // Assuming 'Pending' refers to the user's pending requests in the system.
-  const pendingReqCount = mockRequests.filter(r => r.status === 'Pending').length;
-  const totalHistoryCount = mockLoans.length; // Active + Overdue + Returned
+  useEffect(() => {
+    // Fetch loans
+    const fetchLoans = async () => {
+      setLoadingLoans(true);
+      setErrorLoans(null);
+      try {
+        const res = await fetch('http://localhost:5001/api/loans');
+        if (!res.ok) throw new Error('Failed to fetch loans');
+        const data = await res.json();
+        // Map server response to expected shape (tolerant)
+        const mapped = (data || []).map(item => ({
+          id: item.id || item.loanId || item._id,
+          equipmentName: item.equipmentName || item.name || item.title,
+          status: item.status || item.loanStatus || 'Active',
+          loanDate: item.loanDate || item.startDate || '',
+          returnDate: item.returnDate || item.endDate || '',
+          daysRemaining: typeof item.daysRemaining === 'number' ? item.daysRemaining : (item.daysRemaining || 0),
+          borrowerId: item.borrowerId || item.userId || item.requesterId || '',
+          location: item.location || item.storageLocation || '',
+          imageUrl: item.imageUrl || item.image || '',
+        }));
+        setLoans(mapped);
+      } catch (err) {
+        setErrorLoans(err.message);
+      } finally {
+        setLoadingLoans(false);
+      }
+    };
+
+    // Fetch requests
+    const fetchRequests = async () => {
+      setLoadingRequests(true);
+      setErrorRequests(null);
+      try {
+        const res = await fetch('http://localhost:5001/api/requests');
+        if (!res.ok) throw new Error('Failed to fetch requests');
+        const data = await res.json();
+        const mapped = (data || []).map(r => ({
+          id: r.id || r.requestId || r._id,
+          equipmentName: r.equipmentName || r.name || r.title,
+          status: r.status || r.requestStatus || 'Pending',
+          requesterId: r.requesterId || r.userId || '',
+          reason: r.reason || r.note || '',
+          period: r.period || `${r.startDate || ''} - ${r.endDate || ''}`,
+          requestedDate: r.requestedDate || r.createdAt || '',
+          location: r.location || r.storageLocation || '',
+          imageUrl: r.imageUrl || r.image || '',
+        }));
+        setRequests(mapped);
+      } catch (err) {
+        setErrorRequests(err.message);
+      } finally {
+        setLoadingRequests(false);
+      }
+    };
+
+    fetchLoans();
+    fetchRequests();
+  }, []);
+
+  // --- STATS CALCULATION (from API data) ---
+  const activeCount = loans.filter(l => l.status === 'Active').length;
+  const overdueCount = loans.filter(l => l.status === 'Overdue').length;
+  // Pending requests come from requests API
+  const pendingReqCount = requests.filter(r => r.status === 'Pending').length;
+  const totalHistoryCount = loans.length; // Active + Overdue + Returned
 
   const tabs = [
     { name: 'Active', status: 'Active', count: activeCount },
@@ -401,19 +389,14 @@ const MyLoansContent = ({ searchTerm }) => {
   ];
 
   const filteredLoans = useMemo(() => {
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-
-    // If 'Pending' is selected, we show the "No requests" message (empty list of loans).
-    if (activeTab === 'Pending') {
-      return [];
-    }
+    const lowerCaseSearchTerm = (searchTerm || '').toLowerCase();
 
     // Filter based on Loan Status
-    let statusFiltered = mockLoans;
+    let statusFiltered = loans;
     if (activeTab !== 'All') {
       // 'History' tab maps to all loans for the list, otherwise filter by specific status
       const targetStatus = activeTab === 'History' ? 'All' : activeTab;
-      statusFiltered = targetStatus === 'All' ? mockLoans : mockLoans.filter(loan => loan.status === targetStatus);
+      statusFiltered = targetStatus === 'All' ? loans : loans.filter(loan => loan.status === targetStatus);
     }
 
     // Step 2: Filter by Search Term (Equipment Name)
@@ -422,9 +405,9 @@ const MyLoansContent = ({ searchTerm }) => {
     }
 
     return statusFiltered.filter(loan =>
-      loan.equipmentName.toLowerCase().includes(lowerCaseSearchTerm)
+      (loan.equipmentName || '').toLowerCase().includes(lowerCaseSearchTerm)
     );
-  }, [activeTab, searchTerm]);
+  }, [activeTab, searchTerm, loans]);
 
   const getTabCount = (status) => {
     // Return counts defined above for the stats cards
@@ -509,11 +492,23 @@ const MyLoansContent = ({ searchTerm }) => {
       {/* Loans List */}
       <div className="space-y-6">
         {activeTab === 'Pending' ? (
-          <div className="text-center p-12 bg-white rounded-xl shadow-lg border border-gray-100">
-            <Clock className="w-10 h-10 mx-auto text-gray-400 mb-4" aria-hidden="true" />
-            <h3 className="text-xl font-semibold text-gray-700">No pending requests</h3>
-            <p className="text-gray-500 mt-2">All requests have been approved, issued, or rejected.</p>
-          </div>
+          loadingRequests ? (
+            <div className="text-center p-12 bg-white rounded-xl shadow-lg border border-gray-100">Loading requests...</div>
+          ) : errorRequests ? (
+            <div className="text-center p-6 bg-red-50 text-red-700 rounded-lg">Error loading requests: {errorRequests}</div>
+          ) : requests.length > 0 ? (
+            requests.map(req => (
+              <RequestCard key={req.id} request={req} />
+            ))
+          ) : (
+            <div className="text-center p-12 bg-white rounded-xl shadow-lg border border-gray-100">
+              <Clock className="w-10 h-10 mx-auto text-gray-400 mb-4" aria-hidden="true" />
+              <h3 className="text-xl font-semibold text-gray-700">No pending requests</h3>
+              <p className="text-gray-500 mt-2">All requests have been approved, issued, or rejected.</p>
+            </div>
+          )
+        ) : loadingLoans ? (
+          <div className="text-center p-12 bg-white rounded-xl shadow-lg border border-gray-100">Loading loans...</div>
         ) : filteredLoans.length > 0 ? (
           filteredLoans.map(loan => (
             <LoanCard key={loan.id} loan={loan} />

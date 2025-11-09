@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 // --- ICON PLACEHOLDERS ---
 // Replaced the lucide-react import. Please substitute these placeholder components
@@ -28,43 +28,31 @@ const ListFilter = (props) => <IconPlaceholder name="Filter" {...props} />;
 
 
 
-// --- MOCK DATA FOR RETURNS SCREEN (separate data set to simulate returns tracking) ---
-const mockReturns = [
-  {
-    id: 'r4',
-    equipmentName: 'Digital Piano Keyboard',
-    loanId: 'r4',
-    loanedTo: 'Michael Chen',
-    due: 'Oct 22, 2025',
-    status: 'Overdue',
-    daysLate: 14,
-    fee: 28.00,
-    imageUrl: 'https://placehold.co/100x100/3b82f6/ffffff?text=Piano',
-  },
-  {
-    id: 'r5',
-    equipmentName: 'Projector & Screen',
-    loanId: 'r5',
-    loanedTo: 'Emma Thompson',
-    due: 'Nov 4, 2025',
-    status: 'Overdue',
-    daysLate: 1,
-    fee: 2.00,
-    imageUrl: 'https://placehold.co/100x100/ef4444/ffffff?text=Proj',
-  },
-  {
-    id: 'r6',
-    equipmentName: '4K Monitor Dell U3223QE',
-    loanId: 'r6',
-    loanedTo: 'Jane Smith',
-    due: 'Nov 15, 2025',
-    status: 'OnTime',
-    daysLate: 0,
-    fee: 0.00,
-    imageUrl: 'https://placehold.co/100x100/10b981/ffffff?text=Monitor',
-  },
-];
+// --- API INTEGRATION ---
+const fetchReturns = async () => {
+  try {
+    const response = await fetch('http://localhost:5000/api/returns');
+    if (!response.ok) throw new Error('Failed to fetch returns');
+    return await response.json();
+  } catch (error) {
+    throw new Error(`Error fetching returns: ${error.message}`);
+  }
+};
 
+const processReturn = async (loanId) => {
+  try {
+    const response = await fetch(`http://localhost:5000/api/returns/${loanId}/process`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!response.ok) throw new Error('Failed to process return');
+    return await response.json();
+  } catch (error) {
+    throw new Error(`Error processing return: ${error.message}`);
+  }
+};
 
 // --- UTILITY COMPONENTS ---
 
@@ -72,8 +60,22 @@ const mockReturns = [
 
 
 // New Card Component for the Returns Screen
-const ReturnItemCard = ({ item }) => {
+const ReturnItemCard = ({ item, onProcessReturn }) => {
     const isOverdue = item.status === 'Overdue';
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const handleProcessReturn = async () => {
+        setIsProcessing(true);
+        try {
+            await processReturn(item.loanId);
+            onProcessReturn(item.loanId);
+        } catch (error) {
+            console.error(error);
+            alert('Failed to process return. Please try again.');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
 
     return (
         <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 transition duration-150 hover:shadow-xl">
@@ -138,10 +140,13 @@ const ReturnItemCard = ({ item }) => {
             {/* Action Button for Returns */}
             <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
                 <button
-                    onClick={() => console.log(`Process Return on Loan ID: ${item.loanId}`)}
-                    className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 transform hover:scale-[1.01]"
+                    onClick={handleProcessReturn}
+                    disabled={isProcessing}
+                    className={`px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg shadow-md transition duration-150 transform hover:scale-[1.01] ${
+                        isProcessing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-indigo-700'
+                    }`}
                 >
-                    Process Return
+                    {isProcessing ? 'Processing...' : 'Process Return'}
                 </button>
             </div>
         </div>
@@ -168,12 +173,36 @@ const LoanStatsCard = ({ title, count, icon: Icon, color, iconBg }) => (
 
 
 const ReturnsContent = ({ searchTerm }) => {
-    const [activeTab, setActiveTab] = useState('Total Active'); 
+    const [activeTab, setActiveTab] = useState('Total Active');
+    const [returns, setReturns] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const loadReturns = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const data = await fetchReturns();
+                setReturns(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadReturns();
+    }, []);
+
+    const handleProcessReturn = async (loanId) => {
+        setReturns(prevReturns => prevReturns.filter(r => r.loanId !== loanId));
+    };
 
     // --- STATS CALCULATION for Returns ---
-    const totalActiveCount = mockReturns.length;
-    const overdueCount = mockReturns.filter(r => r.status === 'Overdue').length;
-    const onTimeCount = mockReturns.filter(r => r.status === 'OnTime').length;
+    const totalActiveCount = returns.length;
+    const overdueCount = returns.filter(r => r.status === 'Overdue').length;
+    const onTimeCount = returns.filter(r => r.status === 'OnTime').length;
 
     const statsCards = [
         { title: 'Total Active', count: totalActiveCount, status: 'Total Active', icon: CheckCircle, color: 'text-green-600', iconBg: 'bg-green-100' },
@@ -188,13 +217,15 @@ const ReturnsContent = ({ searchTerm }) => {
     ];
 
     const filteredReturns = useMemo(() => {
+        if (loading || error) return [];
+        
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
         
         // Step 1: Filter by Tab Status
-        let statusFiltered = mockReturns;
+        let statusFiltered = returns;
         if (activeTab !== 'Total Active') {
             const targetStatus = activeTab === 'On Time' ? 'OnTime' : activeTab;
-            statusFiltered = mockReturns.filter(item => item.status === targetStatus);
+            statusFiltered = returns.filter(item => item.status === targetStatus);
         }
 
         // Step 2: Filter by Search Term (Equipment Name)
@@ -206,7 +237,7 @@ const ReturnsContent = ({ searchTerm }) => {
             item.equipmentName.toLowerCase().includes(lowerCaseSearchTerm) ||
             item.loanedTo.toLowerCase().includes(lowerCaseSearchTerm)
         );
-    }, [activeTab, searchTerm]);
+    }, [activeTab, searchTerm, returns, loading, error]);
     
     // The image provided does not show a list of items for the 'On Time' status, 
     // but the functionality is included here for completeness.
@@ -262,9 +293,24 @@ const ReturnsContent = ({ searchTerm }) => {
 
             {/* Returns List */}
             <div className="space-y-6">
-                {filteredReturns.length > 0 ? (
+                {loading ? (
+                    <div className="text-center p-12 bg-white rounded-xl shadow-lg border border-gray-100">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                        <p className="text-gray-600">Loading returns...</p>
+                    </div>
+                ) : error ? (
+                    <div className="text-center p-12 bg-red-50 rounded-xl shadow-lg border border-red-100">
+                        <Clock className="w-10 h-10 mx-auto text-red-400 mb-4" aria-hidden="true" />
+                        <h3 className="text-xl font-semibold text-red-700">Error Loading Returns</h3>
+                        <p className="text-red-600 mt-2">{error}</p>
+                    </div>
+                ) : filteredReturns.length > 0 ? (
                     filteredReturns.map(item => (
-                        <ReturnItemCard key={item.id} item={item} />
+                        <ReturnItemCard 
+                            key={item.id} 
+                            item={item} 
+                            onProcessReturn={handleProcessReturn}
+                        />
                     ))
                 ) : (
                     <div className="text-center p-12 bg-white rounded-xl shadow-lg border border-gray-100">

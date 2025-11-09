@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 // --- ICON PLACEHOLDERS ---
 // Replaced the lucide-react import. Please substitute these placeholder components
@@ -28,53 +28,8 @@ const Calendar = (props) => <IconPlaceholder name="Calendar" {...props} />;
 const MapPin = (props) => <IconPlaceholder name="Location" {...props} />;
 
 
-// --- MOCK DATA ---
-const mockRequests = [
-  {
-    id: 'r1',
-    equipmentName: 'Digital Camera Canon EOS',
-    status: 'Approved',
-    requesterId: 'STU-2024-001',
-    reason: 'Photography project for Art class',
-    period: 'Oct 25 - Nov 1, 2025',
-    requestedDate: 'Oct 20, 2025',
-    location: 'Equipment Room A',
-    imageUrl: 'https://placehold.co/100x100/3b82f6/ffffff?text=Camera',
-  },
-  {
-    id: 'r2',
-    equipmentName: 'Projector Epson X120',
-    status: 'Pending', // <-- This will show Approve/Reject buttons
-    requesterId: 'STU-2024-002',
-    reason: 'Presentation for History class',
-    period: 'Nov 10 - Nov 12, 2025',
-    requestedDate: 'Nov 8, 2025',
-    location: 'Equipment Room B',
-    imageUrl: 'https://placehold.co/100x100/ef4444/ffffff?text=Projector',
-  },
-  {
-    id: 'r3',
-    equipmentName: 'Laptop Macbook Pro M1',
-    status: 'Issued',
-    requesterId: 'STU-2024-003',
-    reason: 'Software Development workshop',
-    period: 'Current (Issued)',
-    requestedDate: 'Oct 1, 2025',
-    location: 'IT Storage',
-    imageUrl: 'https://placehold.co/100x100/10b981/ffffff?text=Laptop',
-  },
-  {
-    id: 'r4',
-    equipmentName: 'Microphone Rode NT1',
-    status: 'Pending', // <-- This will also show Approve/Reject buttons
-    requesterId: 'STU-2024-004',
-    reason: 'Podcast recording for Media Club',
-    period: 'Dec 1 - Dec 5, 2025',
-    requestedDate: 'Nov 25, 2025',
-    location: 'Audio Studio C',
-    imageUrl: 'https://placehold.co/100x100/f59e0b/ffffff?text=Mic',
-  },
-];
+// Requests will be fetched from the backend API instead of using hard-coded mock data.
+// Endpoint used: GET http://localhost:5001/api/requests
 
 // --- UTILITY COMPONENTS ---
 
@@ -95,11 +50,26 @@ const getStatusProps = (status) => {
 const RequestCard = ({ request }) => {
   const { icon: StatusIcon, color } = getStatusProps(request.status);
 
-  // Placeholder function for request action handling
-  const handleAction = (action) => {
-    // NOTE: Replace this console log with your actual Firebase/API logic 
-    // to update the request status (e.g., from 'Pending' to 'Approved').
-    console.log(`Action: ${action} on Request ID: ${request.id}`);
+  // Handle request actions with API calls
+  const handleAction = async (action) => {
+    try {
+      const response = await fetch(`http://localhost:5001/api/requests/${request.id}/${action.toLowerCase()}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to ${action} request`);
+      }
+
+      // Trigger a refresh of the requests list
+      window.location.reload();
+    } catch (error) {
+      console.error(`Error ${action.toLowerCase()}ing request:`, error);
+      alert(`Failed to ${action.toLowerCase()} request. Please try again.`);
+    }
   };
 
   return (
@@ -207,28 +177,66 @@ const RequestCard = ({ request }) => {
 const RequestsScreen = () => {
   const [activeTab, setActiveTab] = useState('All'); // Changed default tab to 'All'
 
+  // Requests state fetched from backend
+  const [requests, setRequests] = useState([]);
+  const [loadingRequests, setLoadingRequests] = useState(true);
+  const [errorRequests, setErrorRequests] = useState(null);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      setLoadingRequests(true);
+      setErrorRequests(null);
+      try {
+        const res = await fetch('http://localhost:5001/api/requests');
+        if (!res.ok) throw new Error('Failed to fetch requests');
+        const data = await res.json();
+        // Map response conservatively to the UI shape
+        const mapped = (data || []).map(r => ({
+          id: r.id || r.requestId || r._id,
+          equipmentName: r.equipmentName || r.name || r.title,
+          status: r.status || r.requestStatus || 'Pending',
+          requesterId: r.requesterId || r.userId || '',
+          reason: r.reason || r.note || '',
+          period: r.period || `${r.startDate || ''} - ${r.endDate || ''}`,
+          requestedDate: r.requestedDate || r.createdAt || '',
+          location: r.location || r.storageLocation || '',
+          imageUrl: r.imageUrl || r.image || '',
+        }));
+        setRequests(mapped);
+      } catch (err) {
+        setErrorRequests(err.message);
+      } finally {
+        setLoadingRequests(false);
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
   const tabs = [
     { name: 'Pending', status: 'Pending' },
     { name: 'Approved', status: 'Approved' },
     { name: 'Issued', status: 'Issued' },
-    { name: 'All', status: 'All', count: mockRequests.length },
+    { name: 'All', status: 'All' },
   ];
 
   const filteredRequests = useMemo(() => {
-    
+    // Use the fetched requests; while loading, return empty array
+    if (typeof requests === 'undefined' || requests === null) return [];
+
     // Step 1: Filter by Tab Status
     const statusFiltered = (activeTab === 'All')
-      ? mockRequests
-      : mockRequests.filter(request => request.status === activeTab);
+      ? requests
+      : requests.filter(request => request.status === activeTab);
 
-    return statusFiltered.filter(request => 
-      request.equipmentName
-    );
-  }, [activeTab]);
+    // Optionally filter out malformed entries and return
+    return statusFiltered.filter(request => request && request.equipmentName);
+  }, [activeTab, requests]);
 
   const getTabCount = (status) => {
-    if (status === 'All') return mockRequests.length;
-    return mockRequests.filter(req => req.status === status).length;
+    if (!Array.isArray(requests)) return 0;
+    if (status === 'All') return requests.length;
+    return requests.filter(req => req.status === status).length;
   };
 
   return (
@@ -281,7 +289,11 @@ const RequestsScreen = () => {
 
             {/* Requests List */}
             <div className="space-y-6">
-              {filteredRequests.length > 0 ? (
+              {loadingRequests ? (
+                <div className="text-center p-12 bg-white rounded-xl shadow-lg border border-gray-100">Loading requests...</div>
+              ) : errorRequests ? (
+                <div className="text-center p-6 bg-red-50 text-red-700 rounded-lg">Error loading requests: {errorRequests}</div>
+              ) : filteredRequests.length > 0 ? (
                 filteredRequests.map(request => (
                   <RequestCard key={request.id} request={request} />
                 ))

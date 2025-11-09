@@ -4,33 +4,44 @@ import { useNavigate } from "react-router-dom";
 export default function SignOn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [selectedRole, setSelectedRole] = useState("STUDENT");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const demoUsers = [
-    { label: "Student", role: "STUDENT", color: "text-blue-600" },
-    { label: "Staff", role: "STAFF", color: "text-green-600" },
-    { label: "Admin", role: "ADMIN", color: "text-orange-500" },
-  ];
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    const payload = {
-      email,
-      password,
-      role: selectedRole || "STUDENT", // default fallback
-    };
+    try {
+      const response = await fetch('http://localhost:5001/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-    console.log("Logging in with:", payload);
-    localStorage.setItem("token", JSON.stringify(payload));
-    navigate("/dashboard");
-  };
+      const data = await response.json();
 
-  const handleDemoSelect = (demo) => {
-    setSelectedRole(demo.role);
-    setEmail(`${demo.label.toLowerCase()}@school.edu`);
-    setPassword("password123");
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      // Store the token and user data
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      // Redirect to dashboard
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'An error occurred during login');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -99,10 +110,19 @@ export default function SignOn() {
             {/* Sign In Button */}
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all"
+              disabled={loading}
+              className={`w-full bg-blue-600 text-white py-2 rounded-lg font-semibold transition-all ${
+                loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+              }`}
             >
-              Sign In
+              {loading ? 'Signing in...' : 'Sign In'}
             </button>
+            
+            {error && (
+              <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
+                {error}
+              </div>
+            )}
           </form>
 
           {/* Create Account */}

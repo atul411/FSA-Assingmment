@@ -7,8 +7,7 @@ import EquipmentCatalog from './EquipmentCatalog';
 import EquipmentCardDetailed from './EquipmentCardDetailed';
 import Sidebar from './Sidebar';
 
-// --- MOCK DATA ---
-
+// --- Navigation Items ---
 const navItems = [
     { name: 'Dashboard', icon: '🏠', page: 'dashboard', active: false }, // Home
     { name: 'Equipment', icon: '📦', page: 'equipment', active: true }, // Package (Box)
@@ -18,87 +17,9 @@ const navItems = [
     { name: 'Reports', icon: '📈', page: 'reports', active: false }, // New item for screenshot
 ];
 
-const statCards = [
-    {
-        title: 'Available',
-        number: 54,
-        statusText: 'items ready to borrow',
-        icon: '📦',
-        iconColor: 'text-indigo-600',
-        bgColor: 'bg-indigo-50',
-        borderColor: 'border-indigo-400',
-    },
-    {
-        title: 'Total Borrowed',
-        number: 0,
-        statusText: 'Currently in use',
-        icon: '✅',
-        iconColor: 'text-green-600',
-        bgColor: 'bg-green-50',
-        borderColor: 'border-green-400',
-    },
-    {
-        title: 'Pending',
-        number: 1,
-        statusText: 'Awaiting approval',
-        icon: '🕐',
-        iconColor: 'text-yellow-600',
-        bgColor: 'bg-yellow-50',
-        borderColor: 'border-yellow-400',
-    },
-    {
-        title: 'Overdue',
-        number: 1,
-        statusText: 'Need attention',
-        icon: '⚠️',
-        iconColor: 'text-red-600',
-        bgColor: 'bg-red-50',
-        borderColor: 'border-red-400',
-    },
-];
 
-const catalogItems = [
-    {
-        name: 'Digital Camera Canon EOS',
-        description: 'Professional DSLR camera with 24MP sensor and 4K video recording',
-        status: 'Excellent',
-        available: 3,
-        total: 5,
-        category: 'Camera',
-        imgUrl: 'https://placehold.co/600x400/1e293b/ffffff?text=Camera+Gear',
-        tagColor: 'bg-slate-700',
-    },
-    {
-        name: 'Compound Microscope',
-        description: 'High-power optical microscope with 1000x magnification',
-        status: 'Good',
-        available: 7,
-        total: 10,
-        category: 'Lab',
-        imgUrl: 'https://placehold.co/600x400/065f46/ffffff?text=Lab+Equipment',
-        tagColor: 'bg-blue-800',
-    },
-    {
-        name: 'Football Set',
-        description: 'Professional size 5 football with pump and carrying bag',
-        status: 'Good',
-        available: 8,
-        total: 8,
-        category: 'Sports',
-        imgUrl: 'https://placehold.co/600x400/9a3412/ffffff?text=Sports+Balls',
-        tagColor: 'bg-orange-800',
-    },
-    {
-        name: 'Acoustic Guitar',
-        description: 'Yamaha acoustic guitar with case and tuner',
-        status: 'Excellent',
-        available: 2,
-        total: 4,
-        category: 'Music',
-        imgUrl: 'https://placehold.co/600x400/581c87/ffffff?text=Musical+Instrument',
-        tagColor: 'bg-purple-800',
-    },
-];
+
+
 
 const Header = ({ setIsSidebarOpen }) => (
     <header className="sticky top-0 z-20 flex items-center justify-between w-full p-4 bg-white z-30 border-b border-gray-100 shadow-md md:shadow-none">
@@ -145,45 +66,163 @@ const StatsCard = ({ title, number, statusText, icon: IconChar, iconColor, bgCol
     </div>
 );
 
-const DashboardContent = () => (
-    <main className="flex-grow p-4 space-y-8 bg-gray-50 md:p-8">
-        <section className="space-y-1">
-            <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-            <p className="text-gray-600">
-                Welcome back, <span className="font-semibold text-indigo-600">Sarah Williams!</span> Here's your equipment overview.
-            </p>
-        </section>
+const DashboardContent = () => {
+    const [items, setItems] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+    const [error, setError] = React.useState(null);
+    const [stats, setStats] = React.useState([]);
 
-        <section>
-            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
-                {statCards.map((card, index) => (
-                    <StatsCard key={index} {...card} />
-                ))}
-            </div>
-        </section>
+    React.useEffect(() => {
+        fetchStats();
+        fetchItems();
+    }, []);
 
-        {/* Using the detailed equipment cards here for consistency */}
-        <section className="pt-4">
-            <h2 className="text-2xl font-bold text-gray-800 mb-1">Available Equipment</h2>
-            <p className="text-gray-600 mb-6">
-                Browse and borrow from our collection
-            </p>
+    const fetchStats = async () => {
+        try {
+            const response = await fetch('http://localhost:5001/api/dashboard/stats');
+            if (!response.ok) {
+                throw new Error('Failed to fetch stats');
+            }
+            const data = await response.json();
+            
+            // Transform API data to match our UI format
+            const statsData = [
+                {
+                    title: 'Available',
+                    number: data.availableItems || 0,
+                    statusText: 'items ready to borrow',
+                    icon: '📦',
+                    iconColor: 'text-indigo-600',
+                    bgColor: 'bg-indigo-50',
+                    borderColor: 'border-indigo-400',
+                },
+                {
+                    title: 'Total Borrowed',
+                    number: data.borrowedItems || 0,
+                    statusText: 'Currently in use',
+                    icon: '✅',
+                    iconColor: 'text-green-600',
+                    bgColor: 'bg-green-50',
+                    borderColor: 'border-green-400',
+                },
+                {
+                    title: 'Pending',
+                    number: data.pendingRequests || 0,
+                    statusText: 'Awaiting approval',
+                    icon: '🕐',
+                    iconColor: 'text-yellow-600',
+                    bgColor: 'bg-yellow-50',
+                    borderColor: 'border-yellow-400',
+                },
+                {
+                    title: 'Overdue',
+                    number: data.overdueItems || 0,
+                    statusText: 'Need attention',
+                    icon: '⚠️',
+                    iconColor: 'text-red-600',
+                    bgColor: 'bg-red-50',
+                    borderColor: 'border-red-400',
+                }
+            ];
+            
+            setStats(statsData);
+        } catch (err) {
+            console.error('Error fetching stats:', err);
+            setError(err.message);
+        }
+    };
 
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                {catalogItems.map((item, index) => (
-                    // Reusing the detailed card for the dashboard preview
-                    <div key={index} className='col-span-1'>
-                        <EquipmentCardDetailed {...item} isSimple={true} />
+    const fetchItems = async () => {
+        try {
+            const response = await fetch('http://localhost:5001/api/items');
+            if (!response.ok) {
+                throw new Error('Failed to fetch items');
+            }
+            const data = await response.json();
+            setItems(data);
+
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const formatItemData = (item) => ({
+        name: item.name,
+        description: item.description || 'No description available',
+        status: item.status || 'Good',
+        available: item.isAvailable ? 1 : 0,
+        total: 1,
+        category: item.category || 'Other',
+        imgUrl: item.imageUrl || 'https://placehold.co/600x400/1e293b/ffffff?text=Equipment',
+        tagColor: 'bg-slate-700'
+    });
+
+    return (
+        <main className="flex-grow p-4 space-y-8 bg-gray-50 md:p-8">
+            <section className="space-y-1">
+                <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+                <p className="text-gray-600">
+                    Welcome back, <span className="font-semibold text-indigo-600">Sarah Williams!</span> Here's your equipment overview.
+                </p>
+            </section>
+
+            <section>
+                {loading ? (
+                    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="p-6 bg-white border border-gray-100 rounded-xl animate-pulse">
+                                <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                                <div className="h-8 bg-gray-200 rounded w-1/4 mb-2"></div>
+                                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                            </div>
+                        ))}
                     </div>
-                ))}
-                {/* Fill the row */}
-                <div className='hidden xl:block col-span-1'>
-                    <EquipmentCardDetailed {...catalogItems[0]} name="Drone DJI Mini" isSimple={true} />
-                </div>
-            </div>
-        </section>
-    </main>
-);
+                ) : error ? (
+                    <div className="text-red-600 bg-red-50 p-4 rounded-lg">
+                        Error loading statistics: {error}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
+                        {stats.map((card, index) => (
+                            <StatsCard key={index} {...card} />
+                        ))}
+                    </div>
+                )}
+            </section>
+
+            <section className="pt-4">
+                <h2 className="text-2xl font-bold text-gray-800 mb-1">Available Equipment</h2>
+                <p className="text-gray-600 mb-6">
+                    Browse and borrow from our collection
+                </p>
+
+                {loading ? (
+                    <div className="flex justify-center items-center min-h-[200px]">
+                        <div className="text-gray-500">Loading equipment...</div>
+                    </div>
+                ) : error ? (
+                    <div className="text-red-600 bg-red-50 p-4 rounded-lg">
+                        Error: {error}
+                    </div>
+                ) : items.length === 0 ? (
+                    <div className="text-gray-500 bg-gray-50 p-4 rounded-lg text-center">
+                        No equipment available at the moment.
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                        {items.map((item, index) => (
+                            <div key={item.id || index} className='col-span-1'>
+                                <EquipmentCardDetailed {...formatItemData(item)} isSimple={true} />
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </section>
+        </main>
+    );
+};
 
 
 // --- Dashboard() ---
