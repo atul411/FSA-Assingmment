@@ -42,9 +42,9 @@
 │   └── Authentication
 │
 └── Database (sql)
-    ├── Users Collection
-    ├── Items Collection
-    └── Requests Collection
+    ├── User Table
+    ├── Item Table
+    └── Request Table
 ```
 
 ## Manual Development (Phase 1)
