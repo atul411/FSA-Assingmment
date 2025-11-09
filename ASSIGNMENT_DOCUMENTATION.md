@@ -41,7 +41,7 @@
 │   ├── Analytics
 │   └── Authentication
 │
-└── Database (MongoDB)
+└── Database (sql)
     ├── Users Collection
     ├── Items Collection
     └── Requests Collection
@@ -261,9 +261,7 @@ DELETE /api/requests/:id
 1. **Backend Deployment**
 ```bash
 cd backend
-npm install
-npm run build
-npm start
+dotnet run --project EduLend
 ```
 
 2. **Frontend Deployment**
@@ -276,9 +274,8 @@ npm run preview
 
 3. **Environment Variables**
 ```
-DATABASE_URL=mongodb://localhost:27017/equipment
+DATABASE_URL="Server=DESKTOP-FI1EJ2S;Database=EduLendDb;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;"
 JWT_SECRET=your_jwt_secret
-PORT=3000
 ```
 
 ## Conclusion

@@ -41,7 +41,7 @@ Improvement: Enhanced with real-time updates and validation
 ### 3. Database Schema Design
 
 ```
-Prompt: "Design an efficient MongoDB schema for equipment lending system with relationships"
+Prompt: "Design an efficient sql schema for equipment lending system with relationships"
 Result: Generated comprehensive schema design
 Learning: Understood complex document relationships
 ```
@@ -49,9 +49,9 @@ Learning: Understood complex document relationships
 ### 4. API Development
 
 ```
-Prompt: "Create Express.js REST APIs for equipment lending system"
-Result: Generated API endpoints with proper error handling
-Enhancement: Added input validation and rate limiting
+Prompt: "Create Swagger for API Documentation"
+Result: Generated steps to implement swagger
+Enhancement: Added only the requierd endpoints
 ```
 
 ### 5. Testing Implementation
