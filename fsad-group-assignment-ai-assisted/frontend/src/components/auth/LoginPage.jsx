@@ -4,29 +4,47 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Alert, AlertDescription } from '../ui/alert';
-import { useApp } from '../../contexts/AppContext';
 
 export const LoginPage = ({ onNavigate }) => {
-  const { login } = useApp();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [role, setRole] = useState('student');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
-    const success = login(email, password, role);
-    if (success) {
+    try {
+      const response = await fetch('http://localhost:5001/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Invalid email or password.');
+      }
+
+      // ✅ Save token and user details
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // ✅ Navigate to dashboard
       onNavigate('dashboard');
-    } else {
-      setError('Invalid email or password.');
+    } catch (err) {
+      setError(err.message || 'Something went wrong, please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const quickLogin = (role) => {
-    setRole(role);
+  const quickLogin = (selectedRole) => {
+    setRole(selectedRole);
   };
 
   return (
@@ -36,7 +54,7 @@ export const LoginPage = ({ onNavigate }) => {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
             <Logo variant="default" className="justify-center mb-6" />
-            <h1 className="text-gray-900 mb-2">Welcome Back</h1>
+            <h1 className="text-gray-900 mb-2 text-2xl font-semibold">Welcome Back</h1>
             <p className="text-gray-600">Sign in to access your equipment lending portal</p>
           </div>
 
@@ -65,8 +83,7 @@ export const LoginPage = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => onNavigate('forgot-password')}
-                  className="text-[#2F5DFF] hover:underline"
-                  style={{ fontSize: '14px' }}
+                  className="text-[#2F5DFF] hover:underline text-sm"
                 >
                   Forgot Password?
                 </button>
@@ -81,8 +98,14 @@ export const LoginPage = ({ onNavigate }) => {
               />
             </div>
 
-            <Button type="submit" className="w-full bg-[#2F5DFF] hover:bg-[#2548CC]">
-              Sign In
+            <Button
+              type="submit"
+              disabled={loading}
+              className={`w-full bg-[#2F5DFF] hover:bg-[#2548CC] ${
+                loading ? 'opacity-70 cursor-not-allowed' : ''
+              }`}
+            >
+              {loading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
 
@@ -96,33 +119,41 @@ export const LoginPage = ({ onNavigate }) => {
             </button>
           </div>
 
-          {/* Quick login options for demo */}
+          {/* Quick login options */}
           <div className="pt-6 border-t border-gray-200">
-            <p className="text-gray-600 mb-3" style={{ fontSize: '14px' }}>Quick Demo Login:</p>
+            <p className="text-gray-600 mb-3 text-sm font-medium">
+              Quick Demo Login:
+            </p>
             <div className="space-y-2">
               <Button
                 type="button"
                 variant="outline"
-                className={`${role === 'student' ? 'w-full justify-start border-gray-300 bg-green-100' : 'w-full justify-start border-gray-300'}`}
+                className={`w-full justify-start border-gray-300 ${
+                  role === 'student' ? 'bg-green-100' : ''
+                }`}
                 onClick={() => quickLogin('student')}
               >
-                <span className="text-[#2F5DFF]">Student</span>
+                <span className="text-[#2F5DFF] font-semibold">Student</span>
               </Button>
               <Button
                 type="button"
                 variant="outline"
-                className={`${role === 'staff' ? 'w-full justify-start border-gray-300 bg-green-100' : 'w-full justify-start border-gray-300'}`}
+                className={`w-full justify-start border-gray-300 ${
+                  role === 'staff' ? 'bg-green-100' : ''
+                }`}
                 onClick={() => quickLogin('staff')}
               >
-                <span className="text-[#10B981]">Staff</span>
+                <span className="text-[#10B981] font-semibold">Staff</span>
               </Button>
               <Button
                 type="button"
                 variant="outline"
-                className={`${role === 'admin' ? 'w-full justify-start border-gray-300 bg-green-100' : 'w-full justify-start border-gray-300'}`}
+                className={`w-full justify-start border-gray-300 ${
+                  role === 'admin' ? 'bg-green-100' : ''
+                }`}
                 onClick={() => quickLogin('admin')}
               >
-                <span className="text-[#F59E0B]">Admin</span>
+                <span className="text-[#F59E0B] font-semibold">Admin</span>
               </Button>
             </div>
           </div>
@@ -134,15 +165,18 @@ export const LoginPage = ({ onNavigate }) => {
         <div
           className="absolute inset-0 opacity-20"
           style={{
-            backgroundImage: 'url(https://images.unsplash.com/photo-1706078355012-f327ce8edeea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzY2hvb2wlMjBjYW1wdXMlMjBiYWNrZ3JvdW5kfGVufDF8fHx8MTc2MTY2NDc3Mnww&ixlib=rb-4.1.0&q=80&w=1080)',
+            backgroundImage:
+              'url(https://images.unsplash.com/photo-1706078355012-f327ce8edeea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzY2hvb2wlMjBjYW1wdXMlMjBiYWNrZ3JvdW5kfGVufDF8fHx8MTc2MTY2NDc3Mnww&ixlib=rb-4.1.0&q=80&w=1080)',
             backgroundSize: 'cover',
-            backgroundPosition: 'center'
+            backgroundPosition: 'center',
           }}
         />
         <div className="relative h-full flex items-center justify-center p-12 text-white">
           <div className="max-w-lg text-center space-y-6">
-            <h2 className="text-white">Streamline Your Equipment Management</h2>
-            <p className="text-white/90" style={{ fontSize: '18px' }}>
+            <h2 className="text-white text-2xl font-semibold">
+              Streamline Your Equipment Management
+            </h2>
+            <p className="text-white/90 text-lg">
               EduLend simplifies equipment lending with real-time tracking, automated reminders, and seamless approval workflows.
             </p>
           </div>

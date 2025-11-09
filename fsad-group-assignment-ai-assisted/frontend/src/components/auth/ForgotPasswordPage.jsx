@@ -9,11 +9,35 @@ import { CheckCircle2, ArrowLeft } from 'lucide-react';
 export const ForgotPasswordPage = ({ onNavigate }) => {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate sending reset email
-    setSent(true);
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:5001/api/auth/forgotpassword', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(err || 'Failed to send reset link');
+      }
+
+      setSent(true);
+    } catch (err) {
+      console.error('Error:', err);
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -26,7 +50,10 @@ export const ForgotPasswordPage = ({ onNavigate }) => {
         </div>
 
         {!sent ? (
-          <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6 bg-white p-8 rounded-xl shadow-sm border border-gray-200"
+          >
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <Input
@@ -39,8 +66,20 @@ export const ForgotPasswordPage = ({ onNavigate }) => {
               />
             </div>
 
-            <Button type="submit" className="w-full bg-[#2F5DFF] hover:bg-[#2548CC]">
-              Send Reset Link
+            {error && (
+              <Alert className="border-red-200 bg-red-50">
+                <AlertDescription className="text-red-600">
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full bg-[#2F5DFF] hover:bg-[#2548CC]"
+              disabled={loading}
+            >
+              {loading ? 'Sending...' : 'Send Reset Link'}
             </Button>
 
             <button
@@ -70,11 +109,7 @@ export const ForgotPasswordPage = ({ onNavigate }) => {
               Check your email and follow the instructions to reset your password.
             </p>
 
-            <Button
-              onClick={() => onNavigate('login')}
-              variant="outline"
-              className="w-full"
-            >
+            <Button onClick={() => onNavigate('login')} variant="outline" className="w-full">
               Back to Login
             </Button>
           </div>
