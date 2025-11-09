@@ -20,8 +20,8 @@
 - **Frontend:** React + Vite
 - **UI Framework:** Tailwind CSS + Shadcn UI
 - **State Management:** React Context API
-- **Backend:** Node.js/Express.js
-- **Database:** MongoDB
+- **Backend:** .NET Core 8 + C#
+- **Database:** MSSQL 
 - **Authentication:** JWT
 - **Version Control:** Git
 
@@ -34,16 +34,16 @@
 │   ├── Dashboard
 │   └── Admin Panel
 │
-├── Backend (Node.js)
+├── Backend (.net Core)
 │   ├── User Management
-│   ├── Equipment CRUD
+│   ├── Item CRUD
 │   ├── Request Processing
 │   ├── Analytics
 │   └── Authentication
 │
 └── Database (MongoDB)
     ├── Users Collection
-    ├── Equipment Collection
+    ├── Items Collection
     └── Requests Collection
 ```
 
@@ -51,8 +51,8 @@
 
 ### Implementation Approach
 1. **Backend Development**
-   - Implemented RESTful APIs using Express.js
-   - Set up MongoDB schemas and models
+   - Implemented RESTful APIs using .NET Core 
+   - Set up SQL schemas and models
    - Implemented JWT authentication
    - Created middleware for role-based access
 
