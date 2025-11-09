@@ -39,7 +39,7 @@ public class AuthApiController : ControllerBase
         {
             Name = request.Name,
             Email = request.Email,
-            StudentId = request.StudentId,
+            SchoolId = request.SchoolId,
             Role = request.Role
         };
 

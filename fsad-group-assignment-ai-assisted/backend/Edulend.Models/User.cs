@@ -5,7 +5,7 @@ namespace Edulend.Models
         public int Id { get; set; }
         public string? Name { get; set; }
         public string? Email { get; set; }
-        public string? StudentId { get; set; } // Optional for staff/admin
+        public string? SchoolId { get; set; }
         public string? Password { get; set; }
         public string? Role { get; set; } // "student", "staff", "admin"
     }

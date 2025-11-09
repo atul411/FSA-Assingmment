@@ -57,7 +57,7 @@ namespace Edulend.DAL.Migrations
                     b.Property<string>("Role")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StudentId")
+                    b.Property<string>("SchoolId")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

@@ -22,7 +22,7 @@ public class RequestApiController : ControllerBase
         var item = _context.Items.Find(req.ItemId);
         if (item == null) return NotFound("Item not found");
 
-        var student = _context.Users.Find(req.StudentId);
+        var student = _context.Users.Find(req.SchoolId);
         if (student == null || student.Role != "student") return NotFound("student not found");
 
         var overlapping = _context.Requests
@@ -57,7 +57,7 @@ public class RequestApiController : ControllerBase
         {
             r.Id,
             Item = _context.Items.Find(r.ItemId),
-            User = _context.Users.Find(r.StudentId)
+            User = _context.Users.Find(r.SchoolId)
         }));
     }
 
@@ -103,7 +103,7 @@ public class RequestApiController : ControllerBase
             {
                 r.Id,
                 r.ItemId,
-                r.StudentId,
+                r.SchoolId,
                 r.StartDate,
                 r.EndDate,
                 DaysOverdue = (DateTime.Now - r.EndDate).Days
