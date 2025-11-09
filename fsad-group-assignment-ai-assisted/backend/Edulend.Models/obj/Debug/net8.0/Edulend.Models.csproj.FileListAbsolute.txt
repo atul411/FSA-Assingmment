@@ -1,0 +1,12 @@
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.Models\bin\Debug\net8.0\Edulend.Models.deps.json
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.Models\bin\Debug\net8.0\Edulend.Models.dll
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.Models\bin\Debug\net8.0\Edulend.Models.pdb
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.Models\obj\Debug\net8.0\Edulend.Models.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.Models\obj\Debug\net8.0\Edulend.Models.AssemblyInfoInputs.cache
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.Models\obj\Debug\net8.0\Edulend.Models.AssemblyInfo.cs
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.Models\obj\Debug\net8.0\Edulend.Models.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.Models\obj\Debug\net8.0\Edulend.Models.sourcelink.json
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.Models\obj\Debug\net8.0\Edulend.Models.dll
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.Models\obj\Debug\net8.0\refint\Edulend.Models.dll
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.Models\obj\Debug\net8.0\Edulend.Models.pdb
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.Models\obj\Debug\net8.0\ref\Edulend.Models.dll

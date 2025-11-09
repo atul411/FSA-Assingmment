@@ -1,0 +1,36 @@
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\bin\Debug\net8.0\Edulend.DAL.deps.json
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\bin\Debug\net8.0\Edulend.DAL.runtimeconfig.json
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\bin\Debug\net8.0\Edulend.DAL.dll
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\bin\Debug\net8.0\Edulend.DAL.pdb
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\bin\Debug\net8.0\Edulend.Models.dll
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\bin\Debug\net8.0\Edulend.Models.pdb
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.csproj.AssemblyReference.cache
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.AssemblyInfoInputs.cache
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.AssemblyInfo.cs
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.sourcelink.json
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\obj\Debug\net8.0\Edulend..3AC255C0.Up2Date
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.dll
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\obj\Debug\net8.0\refint\Edulend.DAL.dll
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.pdb
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.genruntimeconfig.cache
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo\Edulend.DAL\obj\Debug\net8.0\ref\Edulend.DAL.dll
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\bin\Debug\net8.0\Edulend.DAL.deps.json
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\bin\Debug\net8.0\Edulend.DAL.runtimeconfig.json
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\bin\Debug\net8.0\Edulend.DAL.dll
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\bin\Debug\net8.0\Edulend.DAL.pdb
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\bin\Debug\net8.0\Edulend.Models.dll
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\bin\Debug\net8.0\Edulend.Models.pdb
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.csproj.AssemblyReference.cache
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.AssemblyInfoInputs.cache
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.AssemblyInfo.cs
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.sourcelink.json
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\obj\Debug\net8.0\Edulend..3AC255C0.Up2Date
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.dll
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\obj\Debug\net8.0\refint\Edulend.DAL.dll
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.pdb
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\obj\Debug\net8.0\Edulend.DAL.genruntimeconfig.cache
+C:\Users\Administrator\Documents\All-About-Projects\EdulendRepo - Manual\Edulend.DAL\obj\Debug\net8.0\ref\Edulend.DAL.dll

@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edulend", "Edulend\Edulend.csproj", "{D9EF7FC1-ECCE-48A0-9C06-F396F8DB6152}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edulend.Business", "Edulend.Business\Edulend.Business.csproj", "{C250F4B9-B27F-4985-8A28-8FB8A8ED7905}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edulend.DAL", "Edulend.DAL\Edulend.DAL.csproj", "{4C9C2A93-C1AC-4B07-9475-301CD7D128BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edulend.Models", "Edulend.Models\Edulend.Models.csproj", "{FDD00E7A-D58D-4E28-A10F-33457C0687F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edulend.Repository", "Edulend.Repository\Edulend.Repository.csproj", "{7A305909-D3E7-495C-A52E-1B4E1C72B54F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edulend.ViewModels", "Edulend.ViewModels\Edulend.ViewModels.csproj", "{15B380A4-50EF-44E1-AE01-DE7E9F9F0959}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9EF7FC1-ECCE-48A0-9C06-F396F8DB6152}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9EF7FC1-ECCE-48A0-9C06-F396F8DB6152}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9EF7FC1-ECCE-48A0-9C06-F396F8DB6152}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9EF7FC1-ECCE-48A0-9C06-F396F8DB6152}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C250F4B9-B27F-4985-8A28-8FB8A8ED7905}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C250F4B9-B27F-4985-8A28-8FB8A8ED7905}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C250F4B9-B27F-4985-8A28-8FB8A8ED7905}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C250F4B9-B27F-4985-8A28-8FB8A8ED7905}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C9C2A93-C1AC-4B07-9475-301CD7D128BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C9C2A93-C1AC-4B07-9475-301CD7D128BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C9C2A93-C1AC-4B07-9475-301CD7D128BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C9C2A93-C1AC-4B07-9475-301CD7D128BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDD00E7A-D58D-4E28-A10F-33457C0687F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDD00E7A-D58D-4E28-A10F-33457C0687F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDD00E7A-D58D-4E28-A10F-33457C0687F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDD00E7A-D58D-4E28-A10F-33457C0687F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A305909-D3E7-495C-A52E-1B4E1C72B54F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A305909-D3E7-495C-A52E-1B4E1C72B54F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A305909-D3E7-495C-A52E-1B4E1C72B54F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A305909-D3E7-495C-A52E-1B4E1C72B54F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15B380A4-50EF-44E1-AE01-DE7E9F9F0959}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15B380A4-50EF-44E1-AE01-DE7E9F9F0959}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15B380A4-50EF-44E1-AE01-DE7E9F9F0959}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15B380A4-50EF-44E1-AE01-DE7E9F9F0959}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
