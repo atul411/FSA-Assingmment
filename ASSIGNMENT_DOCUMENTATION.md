@@ -184,61 +184,87 @@
 ### API Documentation
 
 #### Authentication Endpoints
+The following API routes are used to handle user authentication within the EduLend backend:
 ```
+POST /api/auth/signin
 POST /api/auth/login
-POST /api/auth/register
 POST /api/auth/refresh
 ```
 
 #### Equipment Endpoints
+The following API routes manage lending item operations such as creation, updates, availability checks, and deletion:
 ```
-GET /api/equipment
-POST /api/equipment
-PUT /api/equipment/:id
-DELETE /api/equipment/:id
+- POST /api/lending-items/add – Add a new lending item
+- PUT /api/lending-items/{id} – Update an existing item by ID
+- DELETE /api/lending-items/{id} – Delete an item by ID
+- GET /api/lending-items/{id}/availability – Check availability of a specific item
+- GET /api/lending-items – Retrieve all lending items
 ```
 
 #### Request Endpoints
+The following API routes handle equipment request operations including submission, status updates, returns, and overdue tracking:
 ```
-GET /api/requests
-POST /api/requests
-PUT /api/requests/:id
-DELETE /api/requests/:id
+- POST /api/requests/requestItem – Submit a new equipment request
+- POST /api/requests/openRequests – Retrieve open requests
+- PUT /changeStatus – Update the status of a request
+- POST /api/requests/{requestId}/return – Mark an item as returned
+- GET /api/requests/overdue – Fetch overdue requests
 ```
 
 ### Database Schema
+The EduLend database is designed to manage users, lending items, and borrowing requests within an educational lending system. It stores essential information about students, staff, and administrators, along with the items available for lending and the requests made to borrow them. The schema ensures proper relationships between users, items, and requests, supporting key operations such as authentication, item management, and request tracking.
+
+
+| Role     | Action                                                                 | Affected Table     |
+|----------|------------------------------------------------------------------------|--------------------|
+| Student  | Registers account                                                      | User               |
+| Student  | Submits equipment request                                              | Request            |
+| System   | Validates JWT and role                                                 | User               |
+| System   | Checks item availability                                               | LendingItem        |
+| Admin    | Adds new equipment to inventory                                        | LendingItem        |
+| Admin    | Approves or rejects request                                            | Request            |
+| System   | Updates request status                                                 | Request            |
+| Student  | Returns item                                                           | Request            |
+| System   | Flags overdue if `ReturnedDate` > `EndDate` or null                   | Request            |
+| Admin    | Updates item condition and quantity                                    | LendingItem        |
 
 #### User Schema
 ```javascript
 {
-  username: String,
+  id: Number,
+  name: String,
   email: String,
+  schoolId: String,
   password: String,
-  role: Enum['student', 'staff', 'admin'],
-  createdAt: Date
+  role: Enum['student', 'staff', 'admin']
 }
 ```
 
 #### Equipment Schema
 ```javascript
 {
+  id: Number,
   name: String,
   category: String,
   condition: String,
   quantity: Number,
-  available: Number,
-  status: Enum['available', 'borrowed', 'maintenance']
+  availability: Enum['In Stock', 'Out of Stock'],
+  adminId: Number,
+  userId: Number
 }
 ```
 
 #### Request Schema
 ```javascript
 {
-  userId: ObjectId,
-  equipmentId: ObjectId,
-  requestDate: Date,
-  returnDate: Date,
-  status: Enum['pending', 'approved', 'rejected', 'returned']
+  id: Number,
+  itemId: Number,
+  schoolId: Number,
+  startDate: Date,
+  endDate: Date,
+  returnedDate: Date | null,
+  status: Enum['Pending', 'Approved', 'Rejected', 'Returned'],
+  adminId: Number
 }
 ```
 
